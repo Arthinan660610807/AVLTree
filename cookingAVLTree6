@@ -1,0 +1,492 @@
+public class AVLTree extends BTreePrinter{
+    Node root;
+
+    public AVLTree(Node root){
+        this.root = root;
+    }
+    
+    public void singleRotateFromLeft(Node y) {
+        if(y == null) return;
+        
+        Node x = y.left;
+        if(x == null) return;
+        
+        Node w = y.parent;
+        Node x2 = x.right;
+        
+        x.right = y;
+        y.parent = x;
+        
+        y.left = x2;
+        if(x2 != null){
+            x2.parent = y;
+        }
+        
+        if(w != null){
+            if(w.left == y){
+                w.left = x;
+            }else{
+                w.right = x;
+            }
+            x.parent = w;
+        }else{
+            root = x;
+            x.parent = null;
+        }
+    }
+    
+    public void singleRotateFromRight(Node y) {
+        if(y == null) return;
+        
+        Node x = y.right;
+        if(x == null) return;
+        
+        Node w = y.parent;
+        Node x2 = x.left;
+        
+        x.left = y;
+        y.parent = x;
+        
+        y.right = x2;
+        if(x2 != null){
+            x2.parent = y;
+        }
+        
+        if(w != null){
+            if(w.left == y){
+                w.left = x;
+            }else{
+                w.right = x;
+            }
+            x.parent = w;
+        }else{
+            root = x;
+            x.parent = null;
+        }
+    }
+    
+    public void doubleRotateFromLeft(Node y) {
+            if(y == null) return;
+            
+            Node x = y.left;
+            if(x == null) return;
+            
+            Node z = x.right;
+            if(z == null) return;
+            
+            
+            Node z1 = z.left;
+            Node z2 = z.right;
+            Node w = y.parent;
+            
+            //1
+            z.left = x;
+            x.parent = z;
+            
+            x.right = z1;
+            if(z1 != null){
+                z1.parent = x;
+            }
+            
+            y.left = z;
+            z.parent = y;
+            
+            //2
+            z.right = y;
+            y.left = z2;
+            
+            y.parent = z;
+            if(z2 != null){
+                z2.parent = y; 
+            }
+            
+            if(w != null){
+                if(w.left == y){
+                    w.left = z;
+                }else{
+                    w.right = z;
+                }
+                z.parent = w;
+            }else{
+                z.parent = null;
+                root = z;
+            }
+    }
+    
+    public void doubleRotateFromRight(Node y) {
+        if(y == null) return;
+        
+        Node x = y.right;
+        if(x == null) return;
+        
+        Node z = x.left;
+        if(z == null) return;
+        
+        
+        Node z1 = z.right;
+        Node z2 = z.left;
+        Node w = y.parent;
+        
+        //1
+        z.right = x;
+        x.parent = z;
+        
+        x.left = z1;
+        if(z1 != null){
+            z1.parent = x;
+        }
+        
+        y.right = z;
+        z.parent = y;
+        
+        //2
+        z.left = y;
+        y.right = z2;
+        
+        y.parent = z;
+        if(z2 != null){
+            z2.parent = y; 
+        }
+        
+        if(w != null){
+            if(w.left == y){
+                w.left = z;
+            }else{
+                w.right = z;
+            }
+            z.parent = w;
+        }else{
+            z.parent = null;
+            root = z;
+        }
+    }
+    
+    public static void rebalance(AVLTree tree, Node node){
+
+        int hleft = height(node.left);
+        int hright = height(node.right);
+        int balanceFactor = hleft - hright ;              // หา balanceFactor
+        if (Math.abs(balanceFactor) > 1){                 // เช็คว่า unbalanced?
+            if (balanceFactor > 0){                       // เช็คว่าหนักซ้าย?
+                if (height(node.left.left) > height(node.left.right)){                  //เช็คว่าใช้ลูกขวาหรือซ้าย
+                
+                    System.out.println("Perform SingleRotationFromLeft(Node " + node.key + ")");
+                    tree.singleRotateFromLeft(node);
+                }else{
+        
+                    System.out.println("Perform DoubleRotationFromLeft(Node " + node.key + ")");
+                    tree.doubleRotateFromLeft(node);
+                }
+            }else{
+                
+                if (height(node.right.right) > height(node.right.left)){                 
+                
+                    System.out.println("Perform SingleRotationFromRight(Node " + node.key + ")");   
+                    tree.singleRotateFromRight(node);
+                }else{
+                    
+                    System.out.println("Perform DoubleRotationFromRight(Node " + node.key + ")");
+                    tree.doubleRotateFromRight(node);
+                }
+            }
+        }
+    }
+    
+    
+    public static Node findKey(Node node, int search_key) {
+
+      if(node == null){
+          System.out.println("Node not found!!!");
+          return null;
+      }
+      
+      if(node.key == search_key){
+          return node;
+      }
+      // มากกว่าไปหาต่อในลูกด้านซ้าย
+      else if(node.key > search_key){
+          return findKey(node.left,search_key);
+      }
+      // น้อยกว่าไปหาต่อในลูกด้านขวา
+      else {
+          return findKey(node.right,search_key);
+      }
+    }
+
+    public static Node findMin(Node node){
+        // Pls copy the code from the previous problem
+      // ถ้าว่าง คืน null
+      if(node == null) return null;
+      
+      // ถ้าไม่มีลูกซ้ายว่า node ปัจจุบันน้อยสุด 
+      if(node.left == null) return node;
+    
+      return findMin(node.left);
+    }
+
+    public static Node findMax(Node node){
+        // Pls copy the code from the previous problem
+
+      if(node == null) return null;
+      
+      if(node.right == null) return node;
+      
+      return findMax(node.right);
+    }
+
+    public void insertKey(int key) {
+        // Pls copy the code from the previous problem
+        if(root == null){
+            root = new Node(key);
+            return;
+        }
+        insertKey(this,root,key);
+    }
+
+    public static void insertKey(AVLTree tree, Node node, int key) {
+    
+      Node newNode = new Node(key);
+      if(node.key == key){
+          System.out.println("Duplicate key");
+          return;
+      }
+      //
+      else if(node.key > key){
+          if(node.left == null){
+              node.left = newNode;
+              newNode.parent = node;
+              return;
+          }
+          insertKey(tree,node.left,key);
+      }
+      //
+      else {
+          if(node.right == null){
+              node.right = newNode;
+              newNode.parent = node;
+              return;
+          }
+          insertKey(tree,node.right,key);
+      }
+    }
+    
+    public void deleteKey(int key) {
+        // Pls copy the code from the previous problem
+        // There should be 6 cases here
+        // Case 0: Empty tree
+        // System.out.println("del" + key);
+        if (root == null) {
+            System.out.println("Empty Tree!!!");
+            return;
+        }
+
+        // Check if the root is the node to be deleted
+        if (root.key == key) {
+            // Case 1: Node has no children (leaf node)
+            if (root.left == null && root.right == null) {
+                root = null;
+            }
+
+            // Case 2: Node has only a left child
+            else if (root.left != null && root.right == null) {
+                root = root.left;
+            }
+
+            // Case 3: Node has only a right child
+            else if (root.left == null && root.right != null) {
+                root = root.right;
+            }
+
+            // Case 4: Node has two children
+            else if (root.left != null && root.right != null) {
+                // Find the smallest node in the right subtree
+                Node successor = findMin(root.right);
+
+                // Special case: The successor is a direct child of the root
+                if (root.right == successor) {
+                    root.left.parent = successor;
+                    successor.left = root.left;
+                    successor.parent = null;
+                    root = successor;
+                }else{
+                    // Replace root's key with the successor's key
+                    root.key = successor.key;
+
+                    // Now delete the successor node recursively
+                    deleteKey(this,successor);
+                }
+            }
+            rebalance(this,root);
+        }else{
+            // Case 5: Non-root node -> Delegating to the static deleteKey
+            Node nodeToDelete = findKey(root,key);
+            deleteKey(this,nodeToDelete);
+        }
+        // super.printTree(this.root);
+        // System.out.println("--------------------------------");
+    }
+    
+    public static void deleteKey(AVLTree tree, Node node){
+        // Pls copy the code from the previous problem (with the rebalacing feature)
+        // Add code segments to enable the rebalancing feature
+        // Case 0: Key not found\
+
+        if (node == null) {
+            System.out.println("Key not found!!!");
+            return;
+        }
+
+        // Reference to the parent of the node to be deleted
+        Node nodeP = node.parent;
+
+        // Case 1: Node has no children (leaf node)
+        if (node.left == null && node.right == null) {
+            // Check if node is the left or right child of its parent
+            if (node.key > nodeP.key) {
+                nodeP.right = null;
+            } else {
+                nodeP.left = null;
+            }
+        }
+
+        // Case 2: Node has only a left child
+        else if (node.left != null && node.right == null) {
+            // Check if node is the left or right child of its parent
+            if (node.key > nodeP.key) {
+                nodeP.right = node.left;
+            } else {
+                nodeP.left = node.left;
+            }
+            node.left.parent = nodeP;
+        }
+
+        // Case 3: Node has only a right child
+        else if (node.left == null && node.right != null) {
+            // Check if node is the left or right child of its parent
+            if (node.key > nodeP.key) {
+                nodeP.right = node.right;
+            } else {
+                nodeP.left = node.right;
+            }
+            node.right.parent = nodeP;
+        }
+
+        // Case 4: Node has two children
+        else if (node.left != null && node.right != null) {
+            // Find the smallest node in the right subtree
+            Node newLead = findMin(node.right);
+
+            // Special case: Successor is the right child of the node
+            if (node.right == newLead) {
+                if (node.key > nodeP.key) {
+                    nodeP.right = newLead;
+                } else {
+                    nodeP.left = newLead;
+                }
+                node.left.parent = newLead;
+                newLead.left = node.left;
+                newLead.parent = nodeP;
+                node = newLead;
+                rebalance(tree,node);
+            }else{
+
+                // Replace node's key with the successor's key
+                node.key = newLead.key;
+                // Now delete the successor node recursively
+                deleteKey(tree,newLead);
+            }
+        }
+        while(nodeP != null){
+            rebalance(tree,nodeP);
+            nodeP = nodeP.parent;
+        }
+    }
+
+    
+    public static boolean isMergeable(Node r1, Node r2){
+        Node maxR1 = findMax(r1);
+        Node minR2 = findMin(r2);
+        
+        if(maxR1 == null || minR2 == null){
+            return true;
+        }
+        
+        if(maxR1.key < minR2.key){
+            return true;
+        }
+        
+        return false;// Fix this
+    }
+
+    public static Node mergeWithRoot(Node r1, Node r2, Node t){
+        if (isMergeable(r1, r2)) {
+
+            int hR1 = height(r1);
+            int hR2 = height(r2);
+            int balanceFactor = hR1 - hR2;
+
+            if(Math.abs(balanceFactor) <= 1){
+                t.left = r1;
+                if(r1 != null) r1.parent = t;
+            
+                t.right = r2;
+                if(r2 != null) r2.parent = t;
+            
+                return t;
+
+            }else if(hR1 > hR2){
+                Node tempR = mergeWithRoot(r1.right, r2, t);
+                r1.right = tempR;
+                tempR.parent = r1;
+                return r1;
+
+            }else{
+                Node tempR = mergeWithRoot(r1, r2.left, t);
+                r2.left = tempR;
+                tempR.parent = r2;
+                return r2;
+
+            }
+
+
+        } else {
+            System.out.println("All nodes in T1 must be smaller than all nodes from T2");
+            return null;
+        }
+    }
+    
+    public void merge(AVLTree tree2){
+        if (isMergeable(this.root, tree2.root)){
+            // Do something
+            Node t = new Node(findMax(this.root).key);
+            
+            deleteKey(t.key);
+            
+            this.root = mergeWithRoot(this.root,tree2.root,t);
+            
+            rebalance(this,root);
+            
+        }else{
+            System.out.println("All nodes in T1 must be smaller than all nodes from T2");
+        }
+    }
+
+    // This function is complete, no need to edit
+    public static int height(Node node){
+        if (node == null)
+            return -1;
+        else
+            return 1 + Math.max(height(node.left), height(node.right));
+    }
+
+    // This function is complete, no need to edit
+    public void printTree() {
+        if (root == null) {
+            System.out.println("Empty tree!!!");
+        } else {
+            super.printTree(root);
+        }
+    }
+    
+    public AVLTree() {} // Dummy Constructor, no need to edit
+}
